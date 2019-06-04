@@ -1,6 +1,6 @@
 
 import * as Debug from 'debug';
-import getDomain from 'tldjs';
+import * as TLD from 'tldjs';
 
 interface TimeUnit {
     step: number;
@@ -33,9 +33,9 @@ function padDate(value: number|string, num: number): string {
 }
 
 //TODO add type check
-export function getDomainFromURL(url) {
+export function getDomainFromURL(url: any) {
     try {
-        return getDomain(url);
+        return TLD.getDomain(url);
     } catch(e) {
     }
     return undefined;
