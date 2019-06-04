@@ -249,8 +249,24 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             return;
         }
 
+        const currentDomains = this.workersBusy.map((working) => {
+            try{
+                return util.getDomainFromURL(working.activeTarget.data)
+            } catch(e){
+            }
+            return undefined;
+        });
+
+        
         const url = job.getUrl();
         const domain = job.getDomain();
+        const currentTLDDomain = util.getDomainFromURL(url);
+
+        if(currentDomains.includes(currentTLDDomain)) {
+            this.jobQueue.push(job);
+            this.work();
+            return;
+        }
 
         // Check if URL was already crawled (on skipDuplicateUrls)
         if (this.options.skipDuplicateUrls

@@ -1,5 +1,6 @@
 
 import * as Debug from 'debug';
+import getDomain from 'tldjs';
 
 interface TimeUnit {
     step: number;
@@ -29,6 +30,15 @@ function padDate(value: number|string, num: number): string {
     }
     const zeroesToAdd = num - str.length;
     return '0'.repeat(zeroesToAdd) + str;
+}
+
+//TODO add type check
+export function getDomainFromURL(url) {
+    try {
+        return getDomain(url);
+    } catch(e) {
+    }
+    return undefined;
 }
 
 export function formatDateTime(datetime: Date | number): string {
