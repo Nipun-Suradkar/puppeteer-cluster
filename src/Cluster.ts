@@ -251,8 +251,10 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
 
         const currentDomains = this.workersBusy.map((working) => {
             try{
-                if(working.activeTarget && working.activeTarget.data !== null) {
-                    return util.getDomainFromURL(working.activeTarget.data)
+                if(working.activeTarget && working.activeTarget) {
+                    //TODO: improve the logic, hardcoding to get things working
+                    let data:any = working.activeTarget.data || {url: ''};
+                    return util.getDomainFromURL(data.url || '')
                 }
             } catch(e){
             }
