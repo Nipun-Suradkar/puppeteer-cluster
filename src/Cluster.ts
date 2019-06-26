@@ -20,6 +20,7 @@ interface ClusterOptions {
     maxConcurrency: number;
     workerCreationDelay: number;
     puppeteerOptions: LaunchOptions;
+    perBrowserOptions: any;
     monitor: boolean;
     timeout: number;
     retryLimit: number;
@@ -42,6 +43,7 @@ const DEFAULT_OPTIONS: ClusterOptions = {
     puppeteerOptions: {
         // headless: false, // just for testing...
     },
+    perBrowserOptions: [],
     monitor: false,
     timeout: 30 * 1000,
     retryLimit: 0,
@@ -78,7 +80,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private workersAvail: Worker<JobData, ReturnData>[] = [];
     private workersBusy: Worker<JobData, ReturnData>[] = [];
     private workersStarting = 0;
-
+    private perBrowserOptions: any;
+    private usePerBrowserOptions: boolean = false;
     private allTargetCount = 0;
     private jobQueue: Queue<Job<JobData, ReturnData>> = new Queue<Job<JobData, ReturnData>>();
     private errorCount = 0;
@@ -141,6 +144,12 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         } else if (this.options.concurrency === Cluster.CONCURRENCY_CONTEXT) {
             this.browser = new builtInConcurrency.Context(browserOptions, puppeteer);
         } else if (this.options.concurrency === Cluster.CONCURRENCY_BROWSER) {
+            this.perBrowserOptions = this.options.perBrowserOptions;
+            if (this.perBrowserOptions.length !== this.options.maxConcurrency) {
+                debug('Not enough perBrowserOptions! perBrowserOptions.length must equal maxConcurrency');
+            } else {
+                this.usePerBrowserOptions = true;
+            }
             this.browser = new builtInConcurrency.Browser(browserOptions, puppeteer);
         } else if (typeof this.options.concurrency === 'function') {
             this.browser = new this.options.concurrency(browserOptions, puppeteer);
@@ -168,13 +177,16 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         this.workersStarting += 1;
         this.nextWorkerId += 1;
         this.lastLaunchedWorkerTime = Date.now();
-
+        var nextBroserOption = {};
+        if (this.usePerBrowserOptions && this.perBrowserOptions.length > 0) {
+            nextBroserOption = this.perBrowserOptions.shift();
+        }
         const workerId = this.nextWorkerId;
 
         let workerBrowserInstance: WorkerInstance;
         try {
             workerBrowserInstance = await (this.browser as ConcurrencyImplementation)
-                .workerInstance();
+                .workerInstance(nextBroserOption);
         } catch (err) {
             throw new Error(`Unable to launch browser for worker, error message: ${err.message}`);
         }

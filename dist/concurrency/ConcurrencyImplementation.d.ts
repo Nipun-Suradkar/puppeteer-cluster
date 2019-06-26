@@ -24,7 +24,7 @@ export default abstract class ConcurrencyImplementation {
     /**
      * Creates a worker and returns it
      */
-    abstract workerInstance(): Promise<WorkerInstance>;
+    abstract workerInstance(perBrowserOptions: any): Promise<WorkerInstance>;
 }
 /**
  * WorkerInstances are created by calling the workerInstance function.

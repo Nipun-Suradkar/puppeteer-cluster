@@ -7,6 +7,7 @@ interface ClusterOptions {
     maxConcurrency: number;
     workerCreationDelay: number;
     puppeteerOptions: LaunchOptions;
+    perBrowserOptions: any;
     monitor: boolean;
     timeout: number;
     retryLimit: number;
@@ -36,6 +37,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private workersAvail;
     private workersBusy;
     private workersStarting;
+    private perBrowserOptions;
+    private usePerBrowserOptions;
     private allTargetCount;
     private jobQueue;
     private errorCount;

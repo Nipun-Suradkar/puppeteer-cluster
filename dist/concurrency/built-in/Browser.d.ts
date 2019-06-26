@@ -2,5 +2,5 @@ import ConcurrencyImplementation, { WorkerInstance } from '../ConcurrencyImpleme
 export default class Browser extends ConcurrencyImplementation {
     init(): Promise<void>;
     close(): Promise<void>;
-    workerInstance(): Promise<WorkerInstance>;
+    workerInstance(perBrowserOptions: any): Promise<WorkerInstance>;
 }
