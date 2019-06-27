@@ -145,11 +145,9 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             this.browser = new builtInConcurrency.Context(browserOptions, puppeteer);
         } else if (this.options.concurrency === Cluster.CONCURRENCY_BROWSER) {
             this.perBrowserOptions = this.options.perBrowserOptions;
-            if (this.perBrowserOptions.length !== this.options.maxConcurrency) {
-                debug('Not enough perBrowserOptions! perBrowserOptions.length must equal maxConcurrency');
-            } else {
+            if (this.perBrowserOptions.length > 0) {
                 this.usePerBrowserOptions = true;
-            }
+            } 
             this.browser = new builtInConcurrency.Browser(browserOptions, puppeteer);
         } else if (typeof this.options.concurrency === 'function') {
             this.browser = new this.options.concurrency(browserOptions, puppeteer);
@@ -177,16 +175,16 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         this.workersStarting += 1;
         this.nextWorkerId += 1;
         this.lastLaunchedWorkerTime = Date.now();
-        var nextBroserOption = {};
+        var nextBrowserOption = {};
         if (this.usePerBrowserOptions && this.perBrowserOptions.length > 0) {
-            nextBroserOption = this.perBrowserOptions.shift();
+            nextBrowserOption = this.perBrowserOptions[ Math.floor(Math.random() * this.perBrowserOptions.length) ];
         }
         const workerId = this.nextWorkerId;
 
         let workerBrowserInstance: WorkerInstance;
         try {
             workerBrowserInstance = await (this.browser as ConcurrencyImplementation)
-                .workerInstance(nextBroserOption);
+                .workerInstance(nextBrowserOption);
         } catch (err) {
             throw new Error(`Unable to launch browser for worker, error message: ${err.message}`);
         }
