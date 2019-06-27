@@ -21,6 +21,7 @@ export default class Worker<JobData, ReturnData> implements WorkerOptions {
     args: string[];
     id: number;
     browser: WorkerInstance;
+    times: number;
     activeTarget: Job<JobData, ReturnData> | null;
     constructor({ cluster, args, id, browser }: WorkerOptions);
     handle(task: TaskFunction<JobData, ReturnData>, job: Job<JobData, ReturnData>, timeout: number): Promise<WorkResult>;

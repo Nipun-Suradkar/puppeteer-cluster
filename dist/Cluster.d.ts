@@ -15,6 +15,7 @@ interface ClusterOptions {
     skipDuplicateUrls: boolean;
     sameDomainDelay: number;
     puppeteer: any;
+    urlsPerBrowser: number;
 }
 declare type Partial<T> = {
     [P in keyof T]?: T[P];
@@ -39,6 +40,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private workersStarting;
     private perBrowserOptions;
     private usePerBrowserOptions;
+    private urlsPerBrowser;
     private allTargetCount;
     private jobQueue;
     private errorCount;

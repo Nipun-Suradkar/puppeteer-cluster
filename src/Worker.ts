@@ -39,6 +39,7 @@ export default class Worker<JobData, ReturnData> implements WorkerOptions {
     args: string[];
     id: number;
     browser: WorkerInstance;
+    times: number;
 
     activeTarget: Job<JobData, ReturnData> | null = null;
 
@@ -47,6 +48,7 @@ export default class Worker<JobData, ReturnData> implements WorkerOptions {
         this.args = args;
         this.id = id;
         this.browser = browser;
+        this.times = 0;
 
         debug(`Starting #${this.id}`);
     }

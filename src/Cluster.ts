@@ -28,6 +28,7 @@ interface ClusterOptions {
     skipDuplicateUrls: boolean;
     sameDomainDelay: number;
     puppeteer: any;
+    urlsPerBrowser: number;
 }
 
 type Partial<T> = {
@@ -51,6 +52,7 @@ const DEFAULT_OPTIONS: ClusterOptions = {
     skipDuplicateUrls: false,
     sameDomainDelay: 0,
     puppeteer: undefined,
+    urlsPerBrowser: 10000,
 };
 
 interface TaskFunctionArguments<JobData> {
@@ -82,6 +84,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private workersStarting = 0;
     private perBrowserOptions: any;
     private usePerBrowserOptions: boolean = false;
+    private urlsPerBrowser = 10000;
     private allTargetCount = 0;
     private jobQueue: Queue<Job<JobData, ReturnData>> = new Queue<Job<JobData, ReturnData>>();
     private errorCount = 0;
@@ -148,6 +151,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             if (this.perBrowserOptions.length > 0) {
                 this.usePerBrowserOptions = true;
             } 
+            this.urlsPerBrowser = this.options.urlsPerBrowser;
             this.browser = new builtInConcurrency.Browser(browserOptions, puppeteer);
         } else if (typeof this.options.concurrency === 'function') {
             this.browser = new this.options.concurrency(browserOptions, puppeteer);
@@ -328,7 +332,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         } else {
             throw new Error('No task function defined!');
         }
-
+        worker.times++;
         const result: WorkResult = await worker.handle(
             (jobFunction as TaskFunction<JobData, ReturnData>),
             job,
@@ -366,6 +370,14 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         // add worker to available workers again
         const workerIndex = this.workersBusy.indexOf(worker);
         this.workersBusy.splice(workerIndex, 1);
+
+        if (worker.times > this.urlsPerBrowser) {
+            this.workers.splice(workerIndex, 1);
+            worker.close();
+            this.launchWorker();
+            this.work();
+            return;
+        }
 
         this.workersAvail.push(worker);
 
