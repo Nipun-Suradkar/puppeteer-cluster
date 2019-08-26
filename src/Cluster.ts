@@ -373,8 +373,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
 
         if (worker.times > this.urlsPerBrowser) {
             this.workers.splice(workerIndex, 1);
-            worker.close();
-            this.launchWorker();
+            await worker.close();
+            await this.launchWorker();
             this.work();
             return;
         }
