@@ -8,6 +8,7 @@ import * as builtInConcurrency from './concurrency/builtInConcurrency';
 
 import { LaunchOptions, Page } from 'puppeteer';
 import Queue from './Queue';
+import SetTTL from "./SetTTL";
 import SystemMonitor from './SystemMonitor';
 import { EventEmitter } from 'events';
 import ConcurrencyImplementation, { WorkerInstance, ConcurrencyImplementationClassType }
@@ -16,6 +17,7 @@ import ConcurrencyImplementation, { WorkerInstance, ConcurrencyImplementationCla
 const debug = util.debugGenerator('Cluster');
 
 interface ClusterOptions {
+    skipDuplicateUrlsTTL?: number;
     concurrency: number | ConcurrencyImplementationClassType;
     maxConcurrency: number;
     workerCreationDelay: number;
@@ -87,6 +89,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private urlsPerBrowser = 10000;
     private allTargetCount = 0;
     private jobQueue: Queue<Job<JobData, ReturnData>> = new Queue<Job<JobData, ReturnData>>();
+    private duplicateUrlsSetTTL: SetTTL<string> = new SetTTL<string>();
     private errorCount = 0;
 
     private taskFunction: TaskFunction<JobData, ReturnData> | null = null;
@@ -262,6 +265,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             // skip, there are items in the queue but they are all delayed
             return;
         }
+        // @ts-ignore
+        const viewport: string = job && job.data && job.data.viewport ? job.data.viewport : undefined;
 
         const currentDomains = this.workersBusy.map((working) => {
             try{
@@ -295,6 +300,13 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             return;
         }
 
+        if (this.options.skipDuplicateUrlsTTL
+            && url !== undefined && this.duplicateUrlsSetTTL.isExists(url + viewport)) {
+            debug(`Skipping duplicate URL: ${job.getUrl()}`);
+            this.work();
+            return;
+        }
+
         // Check if the job needs to be delayed due to sameDomainDelay
         if (this.options.sameDomainDelay !== 0 && domain !== undefined) {
             const lastDomainAccess = this.lastDomainAccesses.get(domain);
@@ -312,6 +324,11 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         if (this.options.skipDuplicateUrls && url !== undefined) {
             this.duplicateCheckUrls.add(url);
         }
+
+        if (this.options.skipDuplicateUrlsTTL && url !== undefined && viewport !== undefined) {
+            this.duplicateUrlsSetTTL.add(url + viewport, this.options.skipDuplicateUrlsTTL);
+        }
+        
         if (this.options.sameDomainDelay !== 0 && domain !== undefined) {
             this.lastDomainAccesses.set(domain, Date.now());
         }
