@@ -3,6 +3,7 @@ import { LaunchOptions, Page } from 'puppeteer';
 import { EventEmitter } from 'events';
 import { ConcurrencyImplementationClassType } from './concurrency/ConcurrencyImplementation';
 interface ClusterOptions {
+    skipDuplicateUrlsTTL?: number;
     concurrency: number | ConcurrencyImplementationClassType;
     maxConcurrency: number;
     workerCreationDelay: number;
@@ -43,6 +44,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private urlsPerBrowser;
     private allTargetCount;
     private jobQueue;
+    private duplicateUrlsSetTTL;
     private errorCount;
     private taskFunction;
     private idleResolvers;
