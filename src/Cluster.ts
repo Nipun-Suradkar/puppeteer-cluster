@@ -266,7 +266,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             return;
         }
         // @ts-ignore
-        const viewport: string = job && job.data && job.data.viewport ? job.data.viewport : undefined;
+        const ugd: string = job && job.data && job.data.ugd ? job.data.ugd : undefined;
 
         const currentDomains = this.workersBusy.map((working) => {
             try{
@@ -301,7 +301,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
 
         if (this.options.skipDuplicateUrlsTTL
-            && url !== undefined && this.duplicateUrlsSetTTL.isExists(url + viewport)) {
+            && url !== undefined && this.duplicateUrlsSetTTL.isExists(url + ugd)) {
             debug(`Skipping duplicate URL: ${job.getUrl()}`);
             this.work();
             return;
@@ -325,8 +325,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             this.duplicateCheckUrls.add(url);
         }
 
-        if (this.options.skipDuplicateUrlsTTL && url !== undefined && viewport !== undefined) {
-            this.duplicateUrlsSetTTL.add(url + viewport, this.options.skipDuplicateUrlsTTL);
+        if (this.options.skipDuplicateUrlsTTL && url !== undefined && ugd !== undefined) {
+            this.duplicateUrlsSetTTL.add(url + ugd, this.options.skipDuplicateUrlsTTL);
         }
         
         if (this.options.sameDomainDelay !== 0 && domain !== undefined) {
