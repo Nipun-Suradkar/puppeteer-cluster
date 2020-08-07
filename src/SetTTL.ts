@@ -9,7 +9,7 @@ export default class SetTTL<T> {
             this.duplicateCheckUrls.add(key);
             setTimeout(() => {
                 this.duplicateCheckUrls.delete(key);
-            },1000);
+            },ttl);
         }
         
         public delete(key : string) : void {
