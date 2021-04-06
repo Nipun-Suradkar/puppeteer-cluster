@@ -285,11 +285,11 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         const domain = job.getDomain();
         const currentTLDDomain = util.getDomainFromURL(url);
 
-        // if (currentDomains.includes(currentTLDDomain)) {
-        //     this.jobQueue.push(job);
-        //     this.work();
-        //     return;
-        // }
+        if (currentDomains.includes(currentTLDDomain)) {
+            this.jobQueue.push(job);
+            this.work();
+            return;
+        }
 
         // Check if URL was already crawled (on skipDuplicateUrls)
         if (this.options.skipDuplicateUrls
