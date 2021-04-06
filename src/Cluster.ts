@@ -8,7 +8,7 @@ import * as builtInConcurrency from './concurrency/builtInConcurrency';
 
 import { LaunchOptions, Page } from 'puppeteer';
 import Queue from './Queue';
-import SetTTL from "./SetTTL";
+import SetTTL from './SetTTL';
 import SystemMonitor from './SystemMonitor';
 import { EventEmitter } from 'events';
 import ConcurrencyImplementation, { WorkerInstance, ConcurrencyImplementationClassType }
@@ -153,7 +153,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             this.perBrowserOptions = this.options.perBrowserOptions;
             if (this.perBrowserOptions.length > 0) {
                 this.usePerBrowserOptions = true;
-            } 
+            }
             this.urlsPerBrowser = this.options.urlsPerBrowser;
             this.browser = new builtInConcurrency.Browser(browserOptions, puppeteer);
         } else if (typeof this.options.concurrency === 'function') {
@@ -182,9 +182,10 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         this.workersStarting += 1;
         this.nextWorkerId += 1;
         this.lastLaunchedWorkerTime = Date.now();
-        var nextBrowserOption = {};
+        let nextBrowserOption = {};
         if (this.usePerBrowserOptions && this.perBrowserOptions.length > 0) {
-            nextBrowserOption = this.perBrowserOptions[ Math.floor(Math.random() * this.perBrowserOptions.length) ];
+            // tslint:disable-next-line:max-line-length
+            nextBrowserOption = this.perBrowserOptions[Math.floor(Math.random() * this.perBrowserOptions.length)];
         }
         const workerId = this.nextWorkerId;
 
@@ -269,23 +270,22 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         const ugd: string = job && job.data && job.data.ugd ? job.data.ugd : undefined;
 
         const currentDomains = this.workersBusy.map((working) => {
-            try{
-                if(working.activeTarget && working.activeTarget) {
-                    //TODO: improve the logic, hardcoding to get things working
-                    let data:any = working.activeTarget.data || {url: ''};
-                    return util.getDomainFromURL(data.url || '')
+            try {
+                if (working.activeTarget && working.activeTarget) {
+                    // TODO: improve the logic, hardcoding to get things working
+                    const data:any = working.activeTarget.data || { url: '' };
+                    return util.getDomainFromURL(data.url || '');
                 }
-            } catch(e){
+            } catch (e) {
             }
             return undefined;
         });
 
-        
         const url = job.getUrl();
         const domain = job.getDomain();
         const currentTLDDomain = util.getDomainFromURL(url);
 
-        if(currentDomains.includes(currentTLDDomain)) {
+        if (currentDomains.includes(currentTLDDomain)) {
             this.jobQueue.push(job);
             this.work();
             return;
@@ -328,7 +328,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         if (this.options.skipDuplicateUrlsTTL && url !== undefined && ugd !== undefined) {
             this.duplicateUrlsSetTTL.add(url + ugd, this.options.skipDuplicateUrlsTTL);
         }
-        
+
         if (this.options.sameDomainDelay !== 0 && domain !== undefined) {
             this.lastDomainAccesses.set(domain, Date.now());
         }
@@ -349,6 +349,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         } else {
             throw new Error('No task function defined!');
         }
+        // tslint:disable-next-line:no-increment-decrement
         worker.times++;
         const result: WorkResult = await worker.handle(
             (jobFunction as TaskFunction<JobData, ReturnData>),
