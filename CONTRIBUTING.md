@@ -1,8 +1,22 @@
 # Contributing
 
-Feel free to open issues or submit pull requests. :)
+## Pull requests are welcome
+
+Feel free to open a pull request. Just be aware that it might take some time for me to review your request.
+
+#### How to make a good pull request
+- Make sure you do not break the API.
+- Make sure the tests succeed.
+- If you added functionality, add a test case if possible.
+- If you added a function or modified the API, change the documentation accordingly.
+- Don't change the `package.json` or `package-lock.json` files to bump the version number of this library.
+- Feel free to change the `CHANGELOG.md` to include your change. You don't need to add a date though. I'll do it, when I publish the next version.
+
+Thank you very much for contributing :)
 
 ## Release Process
+
+**There is no need to read the following guide if you want to make a pull request. This is basically my TODO list for publishing.**
 
 Releases are automatically published to npm by Travis CI. To successfully create a release the following preconditions have to be met:
 - The commit has to be on the master.
@@ -49,12 +63,14 @@ If there are a lot of dependencies with updates available it might be easier to 
     - `npm outdated`
 2. Update all dependencies to their latest version (according to `package.json`). This should do all minor updates.
     - `npm update`
-3. Test if everything went okay, all tests should pass.
+3. In case there are any vulnerabilities (`found ... high severity vulnerabilities`), fix them so that people installing this library, don't get warnings.
+    - `npm audit fix`
+4. Test if everything went okay, all tests should pass.
     - `npm run test`
-4. Check again if there are any outdated dependencies. This might be major upgrades which are not performed automatically.
+5. Check again if there are any outdated dependencies. This might be major upgrades which are not performed automatically.
     - `npm outdated`
-5. Manually decide for each package if it should be upgraded and upgrade them:
+6. Manually decide for each package if it should be upgraded and upgrade them:
     - `npm install PACKAGE_NAME@latest --save`
-6. Rerun tests.
+7. Rerun tests.
     - `npm run test`
-7. If everything worked, the changes can be pushed, probably followed by a new release.
+8. If everything worked, the changes can be pushed, probably followed by a new release.

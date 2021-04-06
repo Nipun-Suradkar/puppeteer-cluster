@@ -1,6 +1,44 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.22.0] - 2020-08-06
+### Changed
+- Updated dependencies to their latest versions
+  - In particular the devDependencies  `puppeteer` and `puppeteer-core` received a major upgrade (to version `5`)
+  - `peerDependencies` was changed accordingly.
+
+## [0.21.0] - 2020-05-24
+### Changed
+- Updated dependencies to their latest versions
+  - In particular the devDependencies  `puppeteer` and `puppeteer-core` received a major upgrade (to version `3`)
+- `peerDependencies` was changed to `^1.5.0 || ^2.0.0 || ^3.0.0` as there were no changes regarding the API that this library uses.
+- Removed support for Node.js version 8 as puppeteer [dropped support](https://github.com/puppeteer/puppeteer/releases/tag/v3.0.0) for it.
+- Added check to ensure `maxConcurrency` is set (#243)
+
+## [0.20.0] - 2020-03-26
+### Added
+- Add a new option `perBrowserOptions` for using different args for each puppeteer instance
+  - Allowing to use a different proxy for each worker
+### Changed
+- Updated dev dependencies to their latest versions
+
+## [0.19.0] - 2020-02-16
+### Changed
+- Added the parameter `jobWillRetry` to the `'taskerror'` Event
+
+## [0.18.0] - 2019-12-05
+### Changed
+- Updated dependencies to their latest versions
+  - In particular the devDependencies  `puppeteer` and `puppeteer-core` received a major upgrade (to version `2`)
+- `peerDependencies` was changed to `^1.5.0 || ^2.0.0` as there were no changes regarding the API that this library uses.
+- Removed support for Node.js version 6 as puppeteer [dropped support](https://github.com/puppeteer/puppeteer/pull/5045) for it.
+
+## [0.17.0] - 2019-08-03
+### Changed
+- Updated dependencies to their latest versions
+### Fixed
+- Fixed bug making it impossible to queue `null` (issue #178)
+
 ## [0.16.0] - 2019-05-11
 ### Changed
 - License changed to MIT

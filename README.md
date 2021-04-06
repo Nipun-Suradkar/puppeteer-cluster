@@ -15,6 +15,7 @@ Create a cluster of puppeteer workers. This library spawns a pool of Chromium in
 - [Typings for input/output (via TypeScript Generics)](#typings-for-inputoutput-via-typescript-generics)
 - [Debugging](#debugging)
 - [API](#api)
+- [License](#license)
 
 ###### What does this library do?
 
@@ -138,12 +139,18 @@ Cluster module provides a method to launch a cluster of Chromium instances.
 #### event: 'taskerror'
 - <[Error]>
 - <[string]|[Object]>
+- <[boolean]>
 
-Emitted when a queued task ends in an error for some reason. Reasons might be a network error, your code throwing an error, timeout hit, etc. The first argument will the error itself. The second argument is the URL or data of the job (as given to [Cluster.queue]). If retryLimit is set to a value greater than `0`, the cluster will automatically requeue the job and retry it again later. In case the task was queued via [Cluster.execute] there will be no event fired.
+Emitted when a queued task ends in an error for some reason. Reasons might be a network error, your code throwing an error, timeout hit, etc. The first argument will the error itself. The second argument is the URL or data of the job (as given to [Cluster.queue]). If retryLimit is set to a value greater than `0`, the cluster will automatically requeue the job and retry it again later. The third argument is a boolean which indicates whether this task will be retried.
+In case the task was queued via [Cluster.execute] there will be no event fired.
 
 ```js
-  cluster.on('taskerror', (err, data) => {
-      console.log(`Error crawling ${data}: ${err.message}`);
+  cluster.on('taskerror', (err, data, willRetry) => {
+      if (willRetry) {
+        console.warn(`Encountered an error while crawling ${data}. ${err.message}\nThis job will be retried`);
+      } else {
+        console.error(`Failed to crawl ${data}: ${err.message}`);
+      }
   });
 ```
 
@@ -158,6 +165,7 @@ Emitted when a task is queued via [Cluster.queue] or [Cluster.execute]. The firs
   - `concurrency` <*Cluster.CONCURRENCY_PAGE*|*Cluster.CONCURRENCY_CONTEXT*|*Cluster.CONCURRENCY_BROWSER*|ConcurrencyImplementation> The chosen concurrency model. See [Concurreny models](#concurreny-models) for more information. Defaults to `Cluster.CONCURRENCY_CONTEXT`. Alternatively you can provide a class implementing `ConcurrencyImplementation`.
   - `maxConcurrency` <[number]> Maximal number of parallel workers. Defaults to `1`.
   - `puppeteerOptions` <[Object]> Object passed to [puppeteer.launch]. See puppeteer documentation for more information. Defaults to `{}`.
+  - `perBrowserOptions` <[Array]<[Object]>> Object passed to [puppeteer.launch] for each individual browser. If set, `puppeteerOptions` will be ignored. Defaults to `undefined` (meaning that `puppeteerOptions` will be used).
   - `retryLimit` <[number]> How often do you want to retry a job before marking it as failed. Ignored by tasks queued via [Cluster.execute]. Defaults to `0`.
   - `retryDelay` <[number]> How much time should pass at minimum between the job execution and its retry. Ignored by tasks queued via [Cluster.execute]. Defaults to `0`.
   - `sameDomainDelay` <[number]> How much time should pass at minimum between two requests to the same domain. If you use this field, the queued `data` must be your URL or `data` must be an object containing a field called `url`.
@@ -202,7 +210,7 @@ Be aware that this function only returns a Promise for backward compatibility re
     - `id` <[number]> ID of the worker. Worker IDs start at 0.
 - returns: <[Promise]>
 
-Works like [Cluster.queue], just that this function returns a Promise which will be resolved after the task is executed. In case an error happens during the execution, this function will reject the Promise with the thrown error. There will be no "taskerror" event fired. In addition, tasks queued via execute will ignore "retryLimit" and "retryDelay". For an example see the [Execute example](examples/execute.js).
+Works like [Cluster.queue], but this function returns a Promise which will be resolved after the task is executed. That means, that the job is still queued, but the script will wait for it to be finished. In case an error happens during the execution, this function will reject the Promise with the thrown error. There will be no "taskerror" event fired. In addition, tasks queued via execute will ignore "retryLimit" and "retryDelay". For an example see the [Execute example](examples/execute.js).
 
 #### cluster.idle()
 - returns: <[Promise]>
@@ -236,3 +244,4 @@ Closes the cluster and all opened Chromium instances including all open pages (i
 [boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type "Boolean"
 [Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
 [Error]: https://nodejs.org/api/errors.html#errors_class_error "Error"
+[Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array "Array"
