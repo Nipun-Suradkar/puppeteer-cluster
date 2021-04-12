@@ -59,5 +59,4 @@ export interface ResourceData {
     page: Page;
     [key: string]: any;
 }
-// tslint:disable-next-line:max-line-length
 export declare type ConcurrencyImplementationClassType = new (options: LaunchOptions, puppeteer: any) => ConcurrencyImplementation;

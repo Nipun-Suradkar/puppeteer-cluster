@@ -11,7 +11,6 @@ export default class Job<JobData, ReturnData> {
     executeCallbacks: ExecuteCallbacks | undefined;
     private lastError;
     tries: number;
-    // tslint:disable-next-line:max-line-length
     constructor(data?: JobData, taskFunction?: TaskFunction<JobData, ReturnData>, executeCallbacks?: ExecuteCallbacks);
     getUrl(): string | undefined;
     getDomain(): string | undefined;

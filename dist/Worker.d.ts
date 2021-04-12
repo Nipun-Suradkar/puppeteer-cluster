@@ -24,7 +24,6 @@ export default class Worker<JobData, ReturnData> implements WorkerOptions {
     times: number;
     activeTarget: Job<JobData, ReturnData> | null;
     constructor({ cluster, args, id, browser }: WorkerOptions);
-    // tslint:disable-next-line:max-line-length
     handle(task: TaskFunction<JobData, ReturnData>, job: Job<JobData, ReturnData>, timeout: number): Promise<WorkResult>;
     close(): Promise<void>;
 }

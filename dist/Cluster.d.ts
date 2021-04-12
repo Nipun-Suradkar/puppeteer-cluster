@@ -29,7 +29,6 @@ interface TaskFunctionArguments<JobData> {
         id: number;
     };
 }
-// tslint:disable-next-line:max-line-length
 export declare type TaskFunction<JobData, ReturnData> = (arg: TaskFunctionArguments<JobData>) => Promise<ReturnData>;
 export default class Cluster<JobData = any, ReturnData = any> extends EventEmitter {
     static CONCURRENCY_PAGE: number;

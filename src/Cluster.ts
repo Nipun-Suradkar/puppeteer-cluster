@@ -261,7 +261,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
 
         const job = this.jobQueue.shift();
-        console.log('Job picked up ', job);
         if (job === undefined) {
             console.log('Undefined Job');
             // skip, there are items in the queue but they are all delayed
