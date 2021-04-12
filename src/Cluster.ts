@@ -573,8 +573,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                 if (worker.activeTarget) {
                     workerUrl = worker.activeTarget.getUrl() || 'UNKNOWN TARGET';
                 } else {
-                    console.log('Worker times in NO TARGET', worker.times);
-                    console.log('Worker args in NO TARGET', worker.args);
+                    console.log('No Target worker ', worker);
                     workerUrl = 'NO TARGET (should not be happening)';
                 }
             }
