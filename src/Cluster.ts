@@ -286,7 +286,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         const currentTLDDomain = util.getDomainFromURL(url);
 
         if (currentDomains.includes(currentTLDDomain)) {
-            console.log('Job Domain alerady in use by workers, pushing again');
+            console.log('Job Domain alerady in use by workers, pushing again ', job.getDomain());
             this.jobQueue.push(job);
             this.work();
             return;
@@ -338,7 +338,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
 
         const worker = this.workersAvail.shift() as Worker<JobData, ReturnData>;
-        console.log("Worker's active target ", worker.activeTarget);
         this.workersBusy.push(worker);
 
         if (this.workersAvail.length !== 0 || this.allowedToStartWorker()) {
@@ -573,7 +572,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                 if (worker.activeTarget) {
                     workerUrl = worker.activeTarget.getUrl() || 'UNKNOWN TARGET';
                 } else {
-                    console.log('No Target worker ', worker);
                     workerUrl = 'NO TARGET (should not be happening)';
                 }
             }
