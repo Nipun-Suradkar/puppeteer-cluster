@@ -570,6 +570,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                 workOrIdle = 'IDLE';
             } else {
                 workOrIdle = 'WORK';
+
                 if (worker.activeTarget) {
                     workerUrl = worker.activeTarget.getUrl() || 'UNKNOWN TARGET';
                 } else {
