@@ -12,6 +12,7 @@ export default class Browser extends ConcurrencyImplementation {
     public async close() {}
 
     public async workerInstance(perBrowserOptions: any): Promise<WorkerInstance> {
+        // tslint:disable-next-line:max-line-length
         let chrome = await this.puppeteer.launch(perBrowserOptions || this.options) as puppeteer.Browser;
         let page: puppeteer.Page;
         let context: any; // puppeteer typings are old...

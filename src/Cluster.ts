@@ -261,8 +261,9 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
 
         const job = this.jobQueue.shift();
-
+        console.log('Job picked up ', job);
         if (job === undefined) {
+            console.log('Undefined Job');
             // skip, there are items in the queue but they are all delayed
             return;
         }
@@ -286,6 +287,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         const currentTLDDomain = util.getDomainFromURL(url);
 
         if (currentDomains.includes(currentTLDDomain)) {
+            console.log('Job Domain alerady in use by workers, pushing again');
             this.jobQueue.push(job);
             this.work();
             return;
@@ -296,6 +298,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             && url !== undefined && this.duplicateCheckUrls.has(url)) {
             // already crawled, just ignore
             debug(`Skipping duplicate URL: ${job.getUrl()}`);
+            console.log(`Skipping duplicate URL: ${job.getUrl()}`);
             this.work();
             return;
         }
@@ -303,6 +306,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         if (this.options.skipDuplicateUrlsTTL
             && url !== undefined && this.duplicateUrlsSetTTL.isExists(url + ugd)) {
             debug(`Skipping duplicate URL: ${job.getUrl()}`);
+            console.log(`Skipping duplicate URLs TTL: ${job.getUrl()}`);
             this.work();
             return;
         }
@@ -315,6 +319,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                 this.jobQueue.push(job, {
                     delayUntil: lastDomainAccess + this.options.sameDomainDelay,
                 });
+                console.log(`Same Domain Delay: ${job.getDomain()}`);
                 this.work();
                 return;
             }
@@ -334,6 +339,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
 
         const worker = this.workersAvail.shift() as Worker<JobData, ReturnData>;
+        console.log("Worker's active target ", worker.activeTarget);
         this.workersBusy.push(worker);
 
         if (this.workersAvail.length !== 0 || this.allowedToStartWorker()) {
@@ -391,6 +397,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         this.workersBusy.splice(workerIndex, 1);
 
         if (worker.times > this.urlsPerBrowser) {
+            console.log('Reached Maximum URLs Per Browser');
             this.workers.splice(workerIndex, 1);
             await worker.close();
             await this.launchWorker();
@@ -551,6 +558,9 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         display.log(`== Remaining: ${timeRemining} (@ ${pagesPerSecond} pages/second)`);
         display.log(`== Sys. load: ${cpuUsage}% CPU / ${memoryUsage}% memory`);
         display.log(`== Workers:   ${this.workers.length + this.workersStarting}`);
+        display.log(`== Job Queue Length:   ${this.jobQueue.size()}`);
+        display.log(`== Avail Workers Length:   ${this.workersAvail.length}`);
+        display.log(`== Busy Workers Length:   ${this.workersBusy.length}`);
 
         this.workers.forEach((worker, i) => {
             const isIdle = this.workersAvail.indexOf(worker) !== -1;
@@ -563,6 +573,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                 if (worker.activeTarget) {
                     workerUrl = worker.activeTarget.getUrl() || 'UNKNOWN TARGET';
                 } else {
+                    console.log('Worker times in NO TARGET', worker.times);
+                    console.log('Worker args in NO TARGET', worker.args);
                     workerUrl = 'NO TARGET (should not be happening)';
                 }
             }
