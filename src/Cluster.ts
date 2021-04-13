@@ -268,29 +268,29 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
         // @ts-ignore
         const ugd: string = job && job.data && job.data.ugd ? job.data.ugd : undefined;
-
-        const currentDomains = this.workersBusy.map((working) => {
-            try {
-                if (working.activeTarget) {
-                    // TODO: improve the logic, hardcoding to get things working
-                    const data:any = working.activeTarget.data || { url: '' };
-                    return util.getDomainFromURL(data.url || '');
-                }
-            } catch (e) {
-            }
-            return undefined;
-        });
+        //
+        // const currentDomains = this.workersBusy.map((working) => {
+        //     try {
+        //         if (working.activeTarget) {
+        //             // TODO: improve the logic, hardcoding to get things working
+        //             const data:any = working.activeTarget.data || { url: '' };
+        //             return util.getDomainFromURL(data.url || '');
+        //         }
+        //     } catch (e) {
+        //     }
+        //     return undefined;
+        // });
 
         const url = job.getUrl();
         const domain = job.getDomain();
         const currentTLDDomain = util.getDomainFromURL(url);
 
-        if (currentDomains.includes(currentTLDDomain)) {
-            console.log('Job Domain alerady in use by workers, pushing again ', job.getDomain());
-            this.jobQueue.push(job);
-            this.work();
-            return;
-        }
+        // if (currentDomains.includes(currentTLDDomain)) {
+        //     console.log('Job Domain alerady in use by workers, pushing again ', job.getDomain());
+        //     this.jobQueue.push(job);
+        //     this.work();
+        //     return;
+        // }
 
         // Check if URL was already crawled (on skipDuplicateUrls)
         if (this.options.skipDuplicateUrls
