@@ -318,7 +318,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                 this.jobQueue.push(job, {
                     delayUntil: lastDomainAccess + this.options.sameDomainDelay,
                 });
-                console.log(`Same Domain Delay: ${job.getDomain()}`);
+                console.log('Same Domain Delay: ', domain);
                 this.work();
                 return;
             }
