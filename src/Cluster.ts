@@ -557,6 +557,8 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         display.log(`== Sys. load: ${cpuUsage}% CPU / ${memoryUsage}% memory`);
         display.log(`== Workers:   ${this.workers.length + this.workersStarting}`);
         display.log(`== Job Queue Length:   ${this.jobQueue.size()}`);
+        display.log(`== Job Queue Delay Items Length:   ${this.jobQueue.delayedItemSize()}`);
+        display.log(`== Job Queue Items to be picked:   ${this.jobQueue.currentJobsToBePicked()}`);
         display.log(`== Avail Workers Length:   ${this.workersAvail.length}`);
         display.log(`== Busy Workers Length:   ${this.workersBusy.length}`);
 

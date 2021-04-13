@@ -13,6 +13,14 @@ export default class Queue<T> {
         return this.list.length + this.delayedItems;
     }
 
+    public currentJobsToBePicked():number {
+        return this.list.length;
+    }
+
+    public delayedItemSize(): number {
+        return this.delayedItems;
+    }
+
     public push(item: T, options: QueueOptions = {}): void {
         if (options && options.delayUntil && options.delayUntil > Date.now()) {
             this.delayedItems += 1;
