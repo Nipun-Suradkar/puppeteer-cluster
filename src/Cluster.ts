@@ -69,7 +69,7 @@ export type TaskFunction<JobData, ReturnData> = (
     arg: TaskFunctionArguments<JobData>,
 ) => Promise<ReturnData>;
 
-const MONITORING_DISPLAY_INTERVAL = 500;
+const MONITORING_DISPLAY_INTERVAL = 1000;
 const CHECK_FOR_WORK_INTERVAL = 100;
 const WORK_CALL_INTERVAL_LIMIT = 10;
 
@@ -261,7 +261,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
 
         const job = this.jobQueue.shift();
-        if (job === undefined) {
+        if (typeof job === 'undefined' || job === null) {
             console.log('Undefined Job');
             // skip, there are items in the queue but they are all delayed
             return;
