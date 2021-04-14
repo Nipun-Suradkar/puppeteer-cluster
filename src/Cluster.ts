@@ -73,7 +73,7 @@ export type TaskFunction<JobData, ReturnData> = (
     arg: TaskFunctionArguments<JobData>,
 ) => Promise<ReturnData>;
 
-const MONITORING_DISPLAY_INTERVAL = 1000;
+const MONITORING_DISPLAY_INTERVAL = 5000;
 const CHECK_FOR_WORK_INTERVAL = 100;
 const WORK_CALL_INTERVAL_LIMIT = 10;
 
@@ -608,7 +608,12 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         for (let i = 0; i < this.workersStarting; i += 1) {
             display.log(`   #${this.workers.length + i} STARTING...`);
         }
-
+        let i = 0;
+        display.log('== Domain Delay Map :');
+        this.domainDelayMap.forEach((val, key) => {
+            i += 1;
+            display.log(` #${i} ${key} : ${val}`);
+        });
         display.resetCursor();
     }
 
