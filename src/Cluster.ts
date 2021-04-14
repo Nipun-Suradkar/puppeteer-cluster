@@ -13,9 +13,12 @@ import SystemMonitor from './SystemMonitor';
 import { EventEmitter } from 'events';
 import ConcurrencyImplementation, { WorkerInstance, ConcurrencyImplementationClassType }
     from './concurrency/ConcurrencyImplementation';
-import { addingDealyedItemEvent, removingDelayedItemEvent } from './Constants';
 
 const debug = util.debugGenerator('Cluster');
+export const constants = {
+    addingDelayedItemEvent : 'Adding Delayed Item',
+    removingDelayedItemEvent : 'Removing Delayed Item',
+};
 
 interface ClusterOptions {
     skipDuplicateUrlsTTL?: number;
@@ -125,14 +128,14 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     public domainDelayMapInit() {
-        this.jobQueue.on(addingDealyedItemEvent, (item:Job<JobData, ReturnData>) => {
+        this.jobQueue.on(constants.addingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
             const domain = item.getDomain();
             if (domain !== undefined) {
                 const count = this.domainDelayMap.get(domain);
                 this.domainDelayMap.set(domain, count === undefined ? 1 : count + 1);
             }
         });
-        this.jobQueue.on(removingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
+        this.jobQueue.on(constants.removingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
             const domain = item.getDomain();
             if (domain !== undefined) {
                 const count = this.domainDelayMap.get(domain);

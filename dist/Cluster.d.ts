@@ -2,6 +2,10 @@
 import { LaunchOptions, Page } from 'puppeteer';
 import { EventEmitter } from 'events';
 import { ConcurrencyImplementationClassType } from './concurrency/ConcurrencyImplementation';
+export declare const constants: {
+    addingDelayedItemEvent: string;
+    removingDelayedItemEvent: string;
+};
 interface ClusterOptions {
     skipDuplicateUrlsTTL?: number;
     concurrency: number | ConcurrencyImplementationClassType;

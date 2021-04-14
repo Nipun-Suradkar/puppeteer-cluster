@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { addingDealyedItemEvent , removingDelayedItemEvent } from './Constants';
+import { constants } from './Cluster';
 
 interface QueueOptions {
     delayUntil?: number;
@@ -25,12 +25,12 @@ export default class Queue<T> extends EventEmitter{
     public push(item: T, options: QueueOptions = {}): void {
         if (options && options.delayUntil && options.delayUntil > Date.now()) {
             this.delayedItems += 1;
-            this.emit(addingDealyedItemEvent, item);
+            this.emit(constants.addingDelayedItemEvent, item);
             setTimeout(
                 () => {
                     this.delayedItems -= 1;
                     this.list.push(item);
-                    this.emit(removingDelayedItemEvent, item);
+                    this.emit(constants.removingDelayedItemEvent, item);
                 },
                 (options.delayUntil - Date.now()),
             );
