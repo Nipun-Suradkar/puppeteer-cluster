@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { constants } from './Cluster';
+import { constants, domainDelayMap } from './Cluster';
 
 interface QueueOptions {
     delayUntil?: number;
@@ -25,13 +25,23 @@ export default class Queue<T> extends EventEmitter{
     public push(item: T, options: QueueOptions = {}): void {
         if (options && options.delayUntil && options.delayUntil > Date.now()) {
             this.delayedItems += 1;
-            this.emit(constants.addingDelayedItemEvent, item);
+            // @ts-ignore
+            const domain = item.getDomain();
+            if (domain !== undefined) {
+                const count = domainDelayMap.get(domain);
+                domainDelayMap.set(domain, count === undefined ? 1 : count + 1);
+            }
             setTimeout(
                 () => {
                     this.delayedItems -= 1;
                     this.list.push(item);
-                    this.emit(constants.removingDelayedItemEvent, item);
-                },
+                    // @ts-ignore
+                    const domain = item.getDomain();
+                    if (domain !== undefined) {
+                        const count = domainDelayMap.get(domain);
+                        domainDelayMap.set(domain, count === undefined ? 0 : count - 1);
+                        // tslint:disable-next-line:brace-style
+                    }},
                 (options.delayUntil - Date.now()),
             );
         } else {

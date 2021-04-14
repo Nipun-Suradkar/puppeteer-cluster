@@ -76,6 +76,7 @@ export type TaskFunction<JobData, ReturnData> = (
 const MONITORING_DISPLAY_INTERVAL = 5000;
 const CHECK_FOR_WORK_INTERVAL = 100;
 const WORK_CALL_INTERVAL_LIMIT = 10;
+export const domainDelayMap: Map<string, number > = new Map<string, number>();
 
 export default class Cluster<JobData = any, ReturnData = any> extends EventEmitter {
 
@@ -114,7 +115,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private systemMonitor: SystemMonitor = new SystemMonitor();
 
     private checkForWorkInterval: NodeJS.Timer | null = null;
-    private domainDelayMap: Map<string, number > = new Map<string, number>();
     public static async launch(options: ClusterOptionsArgument) {
         debug('Launching');
         const cluster = new Cluster(options);
@@ -124,29 +124,21 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     public getDomainDelayCount(domain: string) {
-        return this.domainDelayMap.get(domain);
+        return domainDelayMap.get(domain);
     }
 
-    public domainDelayMapInit() {
-        this.jobQueue.on(constants.addingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
-            const domain = item.getDomain();
-            if (domain !== undefined) {
-                const count = this.domainDelayMap.get(domain);
-                this.domainDelayMap.set(domain, count === undefined ? 1 : count + 1);
-            }
-        });
-        this.jobQueue.on(constants.removingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
-            const domain = item.getDomain();
-            if (domain !== undefined) {
-                const count = this.domainDelayMap.get(domain);
-                this.domainDelayMap.set(domain, count === undefined ? 0 : count - 1);
-            }
-        });
-    }
+    // public domainDelayMapInit() {
+    //     this.jobQueue.on(constants.addingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
+    //
+    //     });
+    //     this.jobQueue.on(constants.removingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
+    //
+    //     });
+    // }
 
     private constructor(options: ClusterOptionsArgument) {
         super();
-        this.domainDelayMapInit();
+        // this.domainDelayMapInit();
         this.options = {
             ...DEFAULT_OPTIONS,
             ...options,
@@ -610,7 +602,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
         let i = 0;
         display.log('== Domain Delay Map :');
-        this.domainDelayMap.forEach((val, key) => {
+        domainDelayMap.forEach((val, key) => {
             i += 1;
             display.log(` #${i} ${key} : ${val}`);
         });
