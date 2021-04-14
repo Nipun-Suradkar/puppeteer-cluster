@@ -4,7 +4,7 @@ interface QueueOptions {
     delayUntil?: number;
 }
 
-export default class Queue<T> {
+export default class Queue<T> extends EventEmitter{
 
     private list: T[] = [];
     private delayedItems: number = 0;
@@ -24,10 +24,12 @@ export default class Queue<T> {
     public push(item: T, options: QueueOptions = {}): void {
         if (options && options.delayUntil && options.delayUntil > Date.now()) {
             this.delayedItems += 1;
+            this.emit('Adding Delayed Item', item);
             setTimeout(
                 () => {
                     this.delayedItems -= 1;
                     this.list.push(item);
+                    this.emit('Removing Delayed Item', item);
                 },
                 (options.delayUntil - Date.now()),
             );

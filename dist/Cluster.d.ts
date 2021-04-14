@@ -29,6 +29,7 @@ interface TaskFunctionArguments<JobData> {
         id: number;
     };
 }
+// tslint:disable-next-line:max-line-length
 export declare type TaskFunction<JobData, ReturnData> = (arg: TaskFunctionArguments<JobData>) => Promise<ReturnData>;
 export default class Cluster<JobData = any, ReturnData = any> extends EventEmitter {
     static CONCURRENCY_PAGE: number;
@@ -59,7 +60,10 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private lastDomainAccesses;
     private systemMonitor;
     private checkForWorkInterval;
+    private domainDelayMap;
     static launch(options: ClusterOptionsArgument): Promise<Cluster<any, any>>;
+    getDomainDelayCount(domain: string): number | undefined;
+    domainDelayMapInit(): void;
     private constructor();
     private init;
     private launchWorker;

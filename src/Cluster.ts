@@ -110,7 +110,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private systemMonitor: SystemMonitor = new SystemMonitor();
 
     private checkForWorkInterval: NodeJS.Timer | null = null;
-
+    private domainDelayMap: Map<string, number > = new Map<string, number>();
     public static async launch(options: ClusterOptionsArgument) {
         debug('Launching');
         const cluster = new Cluster(options);
@@ -119,9 +119,30 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         return cluster;
     }
 
+    public getDomainDelayCount(domain: string) {
+        return this.domainDelayMap.get(domain);
+    }
+
+    public domainDelayMapInit() {
+        this.jobQueue.on('Adding Delayed Item', (item:Job<JobData, ReturnData>) => {
+            const domain = item.getDomain();
+            if (domain !== undefined) {
+                const count = this.domainDelayMap.get(domain);
+                this.domainDelayMap.set(domain, count === undefined ? 1 : count + 1);
+            }
+        });
+        this.jobQueue.on('Removing Delayed Item', (item:Job<JobData, ReturnData>) => {
+            const domain = item.getDomain();
+            if (domain !== undefined) {
+                const count = this.domainDelayMap.get(domain);
+                this.domainDelayMap.set(domain, count === undefined ? 0 : count - 1);
+            }
+        });
+    }
+
     private constructor(options: ClusterOptionsArgument) {
         super();
-
+        this.domainDelayMapInit();
         this.options = {
             ...DEFAULT_OPTIONS,
             ...options,
@@ -283,7 +304,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
 
         const url = job.getUrl();
         const domain = job.getDomain();
-        const currentTLDDomain = util.getDomainFromURL(url);
+        // const currentTLDDomain = util.getDomainFromURL(url);
 
         // if (currentDomains.includes(currentTLDDomain)) {
         //     console.log('Job Domain alerady in use by workers, pushing again ', job.getDomain());
