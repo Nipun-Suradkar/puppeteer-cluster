@@ -127,27 +127,18 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         return domainDelayMap.get(domain);
     }
 
-    public domainDelayMapInit() {
-        this.jobQueue.on(constants.addingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
-            const domain = item.getDomain();
-            if (domain !== undefined) {
-                const count = domainDelayMap.get(domain);
-                domainDelayMap.set(domain, count === undefined ? 1 : count + 1);
-            }
-        });
-        this.jobQueue.on(constants.removingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
-            const domain = item.getDomain();
-            if (domain !== undefined) {
-                const count = domainDelayMap.get(domain);
-                domainDelayMap.set(domain, count === undefined ? 0 : count - 1);
-                // tslint:disable-next-line:brace-style
-            }
-        });
-    }
+    // public domainDelayMapInit() {
+    //     this.jobQueue.on(constants.addingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
+    //
+    //     });
+    //     this.jobQueue.on(constants.removingDelayedItemEvent, (item:Job<JobData, ReturnData>) => {
+    //
+    //     });
+    // }
 
     private constructor(options: ClusterOptionsArgument) {
         super();
-        this.domainDelayMapInit();
+        // this.domainDelayMapInit();
         this.options = {
             ...DEFAULT_OPTIONS,
             ...options,

@@ -67,7 +67,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private checkForWorkInterval;
     static launch(options: ClusterOptionsArgument): Promise<Cluster<any, any>>;
     getDomainDelayCount(domain: string): number | undefined;
-    domainDelayMapInit(): void;
     private constructor();
     private init;
     private launchWorker;
