@@ -279,7 +279,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
 
         const job = this.jobQueue.shift();
         if (typeof job === 'undefined' || job === null) {
-            console.log('Undefined Job');
             // skip, there are items in the queue but they are all delayed
             return;
         }
