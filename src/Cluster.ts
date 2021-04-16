@@ -601,8 +601,10 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         let i = 0;
         display.log('== Domain Delay Map :');
         domainDelayMap.forEach((val, key) => {
-            i += 1;
-            display.log(` #${i} ${key} : ${val}`);
+            if (val > 0) {
+                i += 1;
+                display.log(` #${i} ${key} : ${val}`);
+            }
         });
         display.resetCursor();
     }
