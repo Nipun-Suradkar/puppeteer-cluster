@@ -564,7 +564,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         display.log(`== Job Queue Items to be picked:   ${this.jobQueue.currentJobsToBePicked()}`);
         display.log(`== Avail Workers Length:   ${this.workersAvail.length}`);
         display.log(`== Busy Workers Length:   ${this.workersBusy.length}`);
-
+        let onlyOnce = true;
         this.workers.forEach((worker, i) => {
             // @ts-ignore
             const isIdle = this.workersAvail.indexOf(worker) !== -1;
@@ -582,10 +582,13 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                     if (this.workersBusy.indexOf(worker) === -1) {
                         console.log('No TARGET Worker not present in worker Busy QUEUE');
                         let j = 0;
-                        this.workersBusy.forEach((busyWorker) => {
-                            j = j +  1;
-                            console.log(j, busyWorker.activeTarget?.getDomain());
-                        });
+                        if (onlyOnce) {
+                            onlyOnce = false;
+                            this.workersBusy.forEach((busyWorker) => {
+                                j = j + 1;
+                                console.log(j, busyWorker.activeTarget?.getDomain());
+                            });
+                        }
                     }
                     // this.restartWorker(worker);
                 }
