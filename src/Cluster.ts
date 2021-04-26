@@ -394,17 +394,18 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         this.waitForOneResolvers = [];
 
         // add worker to available workers again
-        const workerIndex = this.workersBusy.indexOf(worker);
-        this.workersBusy.splice(workerIndex, 1);
+        const busyWorkerIndex = this.workersBusy.indexOf(worker);
+        this.workersBusy.splice(busyWorkerIndex , 1);
 
-        // if (worker.times > this.urlsPerBrowser) {
-        //     console.log('Reached Maximum URLs Per Browser');
-        //     this.workers.splice(workerIndex, 1);
-        //     await worker.close();
-        //     await this.launchWorker();
-        //     this.work();
-        //     return;
-        // }
+        if (worker.times > this.urlsPerBrowser) {
+            console.log('Reached Maximum URLs Per Browser');
+            const workerIndex = this.workers.indexOf(worker);
+            this.workers.splice(workerIndex, 1);
+            await worker.close();
+            await this.launchWorker();
+            this.work();
+            return;
+        }
 
         this.workersAvail.push(worker);
 
