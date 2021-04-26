@@ -590,6 +590,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                     workerUrl = worker.activeTarget.getUrl() || 'UNKNOWN TARGET';
                 } else {
                     workerUrl = 'NO TARGET (should not be happening)';
+                    this.restartWorker(worker);
                 }
             }
 
@@ -607,6 +608,15 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             }
         });
         display.resetCursor();
+    }
+
+    private async restartWorker(worker:Worker<JobData, ReturnData>) {
+        console.log('Restarting Worker Since There is No Target configured for it');
+        const workerIndex = this.workersBusy.indexOf(worker);
+        this.workers.splice(workerIndex, 1);
+        await worker.close();
+        await this.launchWorker();
+        this.work();
     }
 
 }

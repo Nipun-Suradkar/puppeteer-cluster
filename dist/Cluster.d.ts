@@ -87,5 +87,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     waitForOne(): Promise<JobData>;
     close(): Promise<void>;
     private monitor;
+    private restartWorker;
 }
 export {};
