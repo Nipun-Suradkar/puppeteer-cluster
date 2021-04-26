@@ -13,6 +13,7 @@ import SystemMonitor from './SystemMonitor';
 import { EventEmitter } from 'events';
 import ConcurrencyImplementation, { WorkerInstance, ConcurrencyImplementationClassType }
     from './concurrency/ConcurrencyImplementation';
+import { runInThisContext } from 'vm';
 
 const debug = util.debugGenerator('Cluster');
 export const constants = {
@@ -396,14 +397,14 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         const workerIndex = this.workersBusy.indexOf(worker);
         this.workersBusy.splice(workerIndex, 1);
 
-        if (worker.times > this.urlsPerBrowser) {
-            console.log('Reached Maximum URLs Per Browser');
-            this.workers.splice(workerIndex, 1);
-            await worker.close();
-            await this.launchWorker();
-            this.work();
-            return;
-        }
+        // if (worker.times > this.urlsPerBrowser) {
+        //     console.log('Reached Maximum URLs Per Browser');
+        //     this.workers.splice(workerIndex, 1);
+        //     await worker.close();
+        //     await this.launchWorker();
+        //     this.work();
+        //     return;
+        // }
 
         this.workersAvail.push(worker);
 
@@ -565,6 +566,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         display.log(`== Busy Workers Length:   ${this.workersBusy.length}`);
 
         this.workers.forEach((worker, i) => {
+            // @ts-ignore
             const isIdle = this.workersAvail.indexOf(worker) !== -1;
             let workOrIdle;
             let workerUrl = '';
@@ -579,6 +581,11 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                     workerUrl = 'NO TARGET (should not be happening)';
                     if (this.workersBusy.indexOf(worker) === -1) {
                         console.log('No TARGET Worker not present in worker Busy QUEUE');
+                        let j = 0;
+                        this.workersBusy.forEach((busyWorker) => {
+                            j = j +  1;
+                            console.log(j, busyWorker.activeTarget?.getDomain());
+                        });
                     }
                     // this.restartWorker(worker);
                 }
