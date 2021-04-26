@@ -611,12 +611,12 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     private async restartWorker(worker:Worker<JobData, ReturnData>) {
-        console.log('Restarting Worker Since There is No Target configured for it');
         const workerIndex = this.workersBusy.indexOf(worker);
         this.workers.splice(workerIndex, 1);
         await worker.close();
         await this.launchWorker();
         this.work();
+        console.log('Restarting Worker Since There is No Target configured for it');
     }
 
 }
