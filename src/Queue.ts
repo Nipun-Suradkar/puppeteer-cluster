@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { constants, domainDelayMap } from './Cluster';
+import { domainDelayMap } from './Cluster';
 
 interface QueueOptions {
     delayUntil?: number;
