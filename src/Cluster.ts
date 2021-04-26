@@ -577,6 +577,9 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
                     workerUrl = worker.activeTarget.getUrl() || 'UNKNOWN TARGET';
                 } else {
                     workerUrl = 'NO TARGET (should not be happening)';
+                    if (this.workersBusy.indexOf(worker) === -1) {
+                        console.log('No TARGET Worker not present in worker Busy QUEUE');
+                    }
                     // this.restartWorker(worker);
                 }
             }
