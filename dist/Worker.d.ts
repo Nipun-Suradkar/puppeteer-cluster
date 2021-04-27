@@ -15,7 +15,10 @@ export interface WorkData {
     type: 'success';
     data: any;
 }
-export declare type WorkResult = WorkError | WorkData;
+export interface RestartWorker {
+    type: 'restart';
+}
+export declare type WorkResult = WorkError | WorkData | RestartWorker;
 export default class Worker<JobData, ReturnData> implements WorkerOptions {
     cluster: Cluster;
     args: string[];
@@ -24,6 +27,7 @@ export default class Worker<JobData, ReturnData> implements WorkerOptions {
     times: number;
     activeTarget: Job<JobData, ReturnData> | null;
     constructor({ cluster, args, id, browser }: WorkerOptions);
+    // tslint:disable-next-line:max-line-length
     handle(task: TaskFunction<JobData, ReturnData>, job: Job<JobData, ReturnData>, timeout: number): Promise<WorkResult>;
     close(): Promise<void>;
 }
