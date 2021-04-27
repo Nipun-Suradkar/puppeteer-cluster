@@ -1,4 +1,3 @@
-
 import Job, { ExecuteResolve, ExecuteReject, ExecuteCallbacks } from './Job';
 import Display from './Display';
 import * as util from './util';
@@ -16,8 +15,8 @@ import ConcurrencyImplementation, { WorkerInstance, ConcurrencyImplementationCla
 
 const debug = util.debugGenerator('Cluster');
 export const constants = {
-    addingDelayedItemEvent : 'Adding Delayed Item',
-    removingDelayedItemEvent : 'Removing Delayed Item',
+    addingDelayedItemEvent: 'Adding Delayed Item',
+    removingDelayedItemEvent: 'Removing Delayed Item',
 };
 
 interface ClusterOptions {
@@ -76,7 +75,7 @@ export type TaskFunction<JobData, ReturnData> = (
 const MONITORING_DISPLAY_INTERVAL = 5000;
 const CHECK_FOR_WORK_INTERVAL = 100;
 const WORK_CALL_INTERVAL_LIMIT = 10;
-export const domainDelayMap: Map<string, number > = new Map<string, number>();
+export const domainDelayMap: Map<string, number> = new Map<string, number>();
 
 export default class Cluster<JobData = any, ReturnData = any> extends EventEmitter {
 
@@ -99,7 +98,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
 
     private taskFunction: TaskFunction<JobData, ReturnData> | null = null;
     private idleResolvers: (() => void)[] = [];
-    private waitForOneResolvers: ((data:JobData) => void)[] = [];
+    private waitForOneResolvers: ((data: JobData) => void)[] = [];
     private browser: ConcurrencyImplementation | null = null;
 
     private isClosed = false;
@@ -115,6 +114,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     private systemMonitor: SystemMonitor = new SystemMonitor();
 
     private checkForWorkInterval: NodeJS.Timer | null = null;
+
     public static async launch(options: ClusterOptionsArgument) {
         debug('Launching');
         const cluster = new Cluster(options);
@@ -223,7 +223,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     private nextWorkCall: number = 0;
-    private workCallTimeout: NodeJS.Timer|null = null;
+    private workCallTimeout: NodeJS.Timer | null = null;
 
     // check for new work soon (wait if there will be put more data into the queue, first)
     private async work() {
@@ -276,7 +276,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             try {
                 if (working.activeTarget) {
                     // TODO: improve the logic, hardcoding to get things working
-                    const data:any = working.activeTarget.data || { url: '' };
+                    const data: any = working.activeTarget.data || { url: '' };
                     return util.getDomainFromURL(data.url || '');
                 }
             } catch (e) {
@@ -357,21 +357,25 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
         // tslint:disable-next-line:no-increment-decrement
         worker.times++;
-        let result:WorkResult;
+        let result: WorkResult;
         try {
             result = await worker.handle(
                 (jobFunction as TaskFunction<JobData, ReturnData>),
                 job,
                 this.options.timeout,
             );
-        }catch (e) {
+        } catch (e) {
             console.log('Worker Handle Error', e);
             this.workersBusy.splice(this.workersBusy.indexOf(worker), 1);
             this.workers.splice(this.workers.indexOf(worker), 1);
             await worker.close();
             await this.launchWorker();
             this.work();
-            return ;
+            if (job.executeCallbacks) {
+                job.executeCallbacks?.reject(`Worker Handle Error ${e}`);
+                this.errorCount += 1;
+            }
+            return;
         }
 
         if (result.type === 'error') {
@@ -405,7 +409,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
 
         // add worker to available workers again
         const busyWorkerIndex = this.workersBusy.indexOf(worker);
-        this.workersBusy.splice(busyWorkerIndex , 1);
+        this.workersBusy.splice(busyWorkerIndex, 1);
 
         if (worker.times > this.urlsPerBrowser) {
             console.log('Reached Maximum URLs Per Browser');
@@ -439,7 +443,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     // Type Guard for TypeScript
     private isTaskFunction(
         data: JobData | TaskFunction<JobData, ReturnData>,
-    ) : data is TaskFunction<JobData, ReturnData> {
+    ): data is TaskFunction<JobData, ReturnData> {
         return (typeof data === 'function');
     }
 
@@ -500,7 +504,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     public waitForOne(): Promise<JobData> {
-        return new Promise(resolve  => this.waitForOneResolvers.push(resolve));
+        return new Promise(resolve => this.waitForOneResolvers.push(resolve));
     }
 
     public async close(): Promise<void> {
@@ -566,7 +570,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         display.log(`== Start:     ${util.formatDateTime(this.startTime)}`);
         display.log(`== Now:       ${util.formatDateTime(now)} (running for ${timeRunning})`);
         display.log(`== Progress:  ${doneTargets} / ${this.allTargetCount} (${donePercStr}%)`
-            + `, errors: ${this.errorCount} (${errorPerc}%)`);
+                        + `, errors: ${this.errorCount} (${errorPerc}%)`);
         display.log(`== Remaining: ${timeRemining} (@ ${pagesPerSecond} pages/second)`);
         display.log(`== Sys. load: ${cpuUsage}% CPU / ${memoryUsage}% memory`);
         display.log(`== Workers:   ${this.workers.length + this.workersStarting}`);
