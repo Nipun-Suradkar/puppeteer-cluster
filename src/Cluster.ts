@@ -205,6 +205,10 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             workerBrowserInstance = await (this.browser as ConcurrencyImplementation)
                 .workerInstance(nextBrowserOption);
         } catch (err) {
+            await workerStartingMutex.runExclusive(() => {
+                this.workersStarting -= 1;
+            });
+            console.log(`Unable to launch browser for worker, error message: ${err.message}`);
             throw new Error(`Unable to launch browser for worker, error message: ${err.message}`);
         }
 
