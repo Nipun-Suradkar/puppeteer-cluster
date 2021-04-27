@@ -357,11 +357,22 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
         // tslint:disable-next-line:no-increment-decrement
         worker.times++;
-        const result: WorkResult = await worker.handle(
-            (jobFunction as TaskFunction<JobData, ReturnData>),
-            job,
-            this.options.timeout,
-        );
+        let result:WorkResult;
+        try {
+            result = await worker.handle(
+                (jobFunction as TaskFunction<JobData, ReturnData>),
+                job,
+                this.options.timeout,
+            );
+        }catch (e) {
+            console.log('Worker Handle Error', e);
+            this.workersBusy.splice(this.workersBusy.indexOf(worker), 1);
+            this.workers.splice(this.workers.indexOf(worker), 1);
+            await worker.close();
+            await this.launchWorker();
+            this.work();
+            return ;
+        }
 
         if (result.type === 'error') {
             if (job.executeCallbacks) {
