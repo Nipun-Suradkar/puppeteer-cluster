@@ -12,8 +12,11 @@ import SystemMonitor from './SystemMonitor';
 import { EventEmitter } from 'events';
 import ConcurrencyImplementation, { WorkerInstance, ConcurrencyImplementationClassType }
     from './concurrency/ConcurrencyImplementation';
+import { Mutex } from 'async-mutex';
 
 const debug = util.debugGenerator('Cluster');
+const workerStartingMutex: Mutex = new Mutex();
+const workerIdMutex: Mutex = new Mutex();
 export const constants = {
     addingDelayedItemEvent: 'Adding Delayed Item',
     removingDelayedItemEvent: 'Removing Delayed Item',
@@ -183,8 +186,12 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
 
     private async launchWorker() {
         // signal, that we are starting a worker
-        this.workersStarting += 1;
-        this.nextWorkerId += 1;
+        await workerStartingMutex.runExclusive(() => {
+            this.workersStarting += 1;
+        });
+        await workerIdMutex.runExclusive(() => {
+            this.nextWorkerId += 1;
+        });
         this.lastLaunchedWorkerTime = Date.now();
         let nextBrowserOption = {};
         if (this.usePerBrowserOptions && this.perBrowserOptions.length > 0) {
@@ -207,7 +214,10 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
             browser: workerBrowserInstance,
             id: workerId,
         });
-        this.workersStarting -= 1;
+
+        await workerStartingMutex.runExclusive(() => {
+            this.workersStarting -= 1;
+        });
 
         if (this.isClosed) {
             // cluster was closed while we created a new worker (should rarely happen)
